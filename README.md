@@ -1,85 +1,78 @@
-# OhBot Vision Tracker
+## Description
 
-A real-time face tracking system that uses a webcam and OpenCV to detect faces and drive OhBot servo motors, making the robot's head and eyes follow a person's movements smoothly.
+**OhBot Tracker v7.3** is a real-time human-robot interaction system that combines computer vision, robotic servo control, and ultrasonic sensing.
 
----
+The system uses a camera and OpenCV-based face detection to track human faces and control the OhBot's head and eye movements. Two ultrasonic sensors connected through an ATmega32U4 provide additional spatial awareness, allowing the robot to detect nearby objects and react when visual tracking is temporarily lost.
+
+The project also includes an autonomous environmental scanning mode and a radar-style visualization that displays detected faces, nearby objects, scanning direction, and sensor distances in real time.
+
+The main focus of the project is to create smoother, more natural robotic tracking while improving reliability in real-world conditions such as servo vibration, temporary face loss, duplicate detections, and additional mechanical load from attached sensors.
 
 ## Features
 
-- **Real-time face detection** using OpenCV's Haar Cascade classifier
-- **Smooth servo tracking** with an exponential smoothing filter (no jerky movements)
-- **Synchronized head and eye movement** — both HEADTURN/HEADNOD and EYETURN/EYETILT servos move together
-- **Pause/Resume** tracking at any time without stopping the program
-- **On-screen HUD** showing current mode and available controls
-- **Clean shutdown** that recentres the robot's head on exit
+- Real-time face detection and tracking
+- YuNet face detector with Haar Cascade fallback
+- Automatic target selection when multiple faces are detected
+- Separate eye-only and head-tracking zones
+- Smooth head and eye movement using interpolation
+- Dead-zone control to reduce unnecessary servo movement
+- Rolling position buffer for more stable tracking
+- Four-axis OhBot control:
+  - Head pan
+  - Head nod
+  - Eye pan
+  - Eye tilt
+- Dual ultrasonic sensor integration
+- ATmega32U4 serial communication
+- DTR/RTS handling for reliable native USB communication
+- Automatic reaction to left and right ultrasonic detections
+- 2.5-second lost-face recovery logic
+- Automatic startup environmental scan
+- Manual rescan support
+- 11-position left-to-right scanning sequence
+- Servo settling delay to reduce camera vibration
+- Camera frame-buffer flushing to remove motion-blurred frames
+- Double-frame face confirmation during scanning
+- Duplicate face clustering during radar scans
+- Real-time radar visualization
+- Face and object markers on radar
+- 50 cm, 100 cm, 150 cm, and 200 cm radar distance guides
+- Live left and right ultrasonic distance indicators
+- Safe servo movement limits
+- Head-nod compensation for additional camera and sensor weight
+- Live OpenCV HUD with system and connection status
+- Keyboard controls for reset, pause, rescan, and exit
 
----
+## Main Technologies
 
-## Requirements
+- Python
+- OpenCV
+- NumPy
+- PySerial
+- YuNet
+- OhBot Python API
+- ATmega32U4
+- HC-SR04 ultrasonic sensors
 
-### Hardware
-- OhBot robot
-- USB webcam (configured as device index `1`)
+## Keyboard Controls
 
-### Software
-- Python 3.x
-- [OpenCV](https://pypi.org/project/opencv-python/) (`cv2`)
-- [ohbot](https://pypi.org/project/ohbot/) Python library
+- `Q` - Quit
+- `R` - Reset OhBot to neutral position
+- `P` - Pause or resume tracking
+- `S` - Start a new environmental scan
 
-Install dependencies:
-```bash
-pip install opencv-python ohbot
-```
+## Example System Flow
 
----
+Camera  
+→ Face Detection  
+→ Target Selection  
+→ Tracking Error Calculation  
+→ Eye / Head Movement
 
-## Usage
+Ultrasonic Sensors  
+→ ATmega32U4  
+→ Serial Communication  
+→ Python  
+→ Lost-Target Recovery / Object Detection
 
-```bash
-python ohbot_camera_tracker_V2_1.py
-```
-
-### Controls
-
-| Key | Action |
-|-----|--------|
-| `P` | Pause / Resume tracking |
-| `Q` | Quit and shut down |
-
----
-
-## How It Works
-
-1. **Initialization** — OhBot servos are centred (position 5) at startup.
-2. **Face Detection** — Each frame is converted to greyscale and scanned with a Haar Cascade frontal-face classifier.
-3. **Coordinate Mapping** — The detected face's centre pixel is normalised to the range `[0, 10]` to match OhBot's servo scale.
-4. **Smoothing** — A smoothing factor of `0.20` blends the current servo position toward the target each frame, preventing abrupt jumps.
-5. **Servo Limits** — Tilt is clamped between `3.0` and `8.0` to protect the robot's physical range of motion.
-6. **Pause Mode** — When paused, the face bounding box is still drawn in orange but servos do not move.
-7. **Shutdown** — On exit (`Q` or interrupt), the camera is released, windows are closed, and the head is recentred.
-
----
-
-## Configuration
-
-You can tune the following variables at the top of the script:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `smoothing_factor` | `0.20` | Higher = faster but jerkier tracking (range: 0–1) |
-| `cv2.VideoCapture(1, ...)` | `1` | Change to `0` if your webcam is on a different index |
-| `CAP_PROP_FRAME_WIDTH/HEIGHT` | `640 × 480` | Camera resolution |
-| `minSize` | `(30, 30)` | Minimum face size in pixels to detect |
-
----
-
-## Project Context
-
-This script was developed as part of the **"Teaching a Robot to See You"** robotics project (Group 1), exploring real-time computer vision and servo control with OhBot.
-
----
-
-## License
-
-This project is for educational use.
-# Ubiquitous-Systems
+Both perception sources are also combined in the real-time radar interface.
