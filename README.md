@@ -29,7 +29,7 @@ The main focus of the project is to create smoother, more natural robotic tracki
 - 2.5-second lost-face recovery logic
 - Automatic startup environmental scan
 - Manual rescan support
-- 11-position left-to-right scanning sequence
+- 8-position left-to-right scanning sequence
 - Servo settling delay to reduce camera vibration
 - Camera frame-buffer flushing to remove motion-blurred frames
 - Double-frame face confirmation during scanning
